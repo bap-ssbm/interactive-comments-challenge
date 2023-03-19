@@ -47,7 +47,9 @@ function Comment(props) {
                 <ScoreButton
                     updateVote={props.updateVote}
                     score={props.comment.score}
-                    id={props.id} />
+                    id={props.id} 
+                    user = {props.user}/>
+                    
                 <div className="comment-right">
                     <TopSection replyBtn={props.replyBtn}
                         deleteBtn={props.deleteBtn}

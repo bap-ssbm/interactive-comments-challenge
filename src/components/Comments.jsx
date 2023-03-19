@@ -47,6 +47,7 @@ function Comments(props) {
             cancelDelete={props.cancelDelete}
             deleteModal={props.deleteModal}
             updateVote={props.updateVote}
+            user = {props.user}
             
         />)
     }
@@ -87,6 +88,7 @@ function Comments(props) {
                 cancelDelete={props.cancelDelete}
                 deleteModal={props.deleteModal}
                 updateVote={props.updateVote}
+                user = {props.user}
             />
             {hasReplies && (
                 <div className="replies-section-wrapper">

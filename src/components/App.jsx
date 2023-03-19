@@ -3,13 +3,14 @@ import data from "../data.json";
 import Comments from "./Comments";
 import Reply from "./Reply";
 import Modal from "./Modal";
+import { type } from "@testing-library/user-event/dist/type";
 
 
 
 
 
 //functtion that finds the index of target id. if the target is inside a comment aka, its a reply, it will send the index of the comment its wrapped in.
-function findIndex(commentdata, targetid) {
+function findFirstIndex(commentdata, targetid) {
 
     let commentIndex = commentdata.findIndex(comment => comment.id == targetid);
 
@@ -32,8 +33,6 @@ function findReplyIndex(commentdata, targetid) {
 }
 
 function App() {
-    const currentUser = data.currentUser;
-
 
     const [commentSendInput, changeComentSendInputText] = useState("");
     const [commentReplyInput, changeComentReplyInputText] = useState("");
@@ -42,7 +41,7 @@ function App() {
 
 
     const [sentText, catchSentText] = useState("");
-    const [userData, updateUserData] = useState(data.currentUser);
+
 
     //the data i got
 
@@ -52,59 +51,27 @@ function App() {
     const [confirmDelete, changeConfirmDelete] = useState(false);
 
     var commentDataToload;
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         console.log("fetc data activatin");
-    //         try {
-    //             if (localStorage.getItem("comments") !== null) {
+    var userDataToLoad;
 
-    //                 const data = await JSON.parse(localStorage.getItem('comments'));
-
-
-
-    //                console.log(data);
-
-
-    //                 console.log("fetched local data");
-
-    //                 commentDataToload = data;
-    //             } else {
-    //                 console.log("loading");
-    //                 const result = await fetch("../data.json");
-    //                 console.log("got result");
-    //                 const data = await result.json();
-    //                 console.log("loaded data");
-
-    //                 commentDataToload = data.comments;
-    //                 console.log("created local data");
-    //             }
-
-    //         } catch (error) {
-    //             console.error("Error fetching data:", error);
-    //         }
-    //     };
-
-    //     console.log("Fetching data...");
-    //     fetchData();
-    // }, []);
-    if (localStorage.getItem("comments") !== null) {
+    if (localStorage.getItem("comments") !== null && localStorage.getItem("userData") !== null) {
 
         const datanew = JSON.parse(localStorage.getItem('comments'));
+        const newUserData = JSON.parse(localStorage.getItem('userData'));
 
 
+      
 
-        console.log(data);
-
-
-        console.log("fetched local data");
+        userDataToLoad = newUserData;
+     
 
         commentDataToload = datanew;
     } else {
         commentDataToload = data.comments;
+        userDataToLoad = data.currentUser;
     }
-    
-    const [commentdata, updateData] = useState(commentDataToload)
 
+    const [commentdata, updateData] = useState(commentDataToload)
+    const [userData, updateUserData] = useState(userDataToLoad);
 
 
 
@@ -116,7 +83,14 @@ function App() {
         }
 
     }, []);
+    useEffect(() => {
+        const userdata = JSON.parse(localStorage.getItem('userData'));
+        console.log("local storage loaded");
+        if (userdata) {
+            updateUserData(userdata);
+        }
 
+    }, []);
 
 
     function catchTextAreaChange(event) {
@@ -181,7 +155,7 @@ function App() {
             },
             replies: []
         }
-        console.log(newComment);
+
         //adds a new comment to the existing datas
         updateData(previousData => {
 
@@ -192,8 +166,7 @@ function App() {
 
         });
 
-        console.log("sent message");
-        console.log(commentdata);
+
 
         //sets the value of the text area to blank
         changeComentSendInputText("");
@@ -233,7 +206,7 @@ function App() {
         }
 
         //calls function that checks the index of the comment replied to
-        let commentIndex = findIndex(commentdata, targetID);
+        let commentIndex = findFirstIndex(commentdata, targetID);
 
         //push items into the necessary array
         commentdata[commentIndex].replies.push(newComment);
@@ -249,7 +222,7 @@ function App() {
 
     //delete btn function currently only works for comments not replies
     function deleteBtn(commentId) {
-        const firstI = findIndex(commentdata, commentId);
+        const firstI = findFirstIndex(commentdata, commentId);
         const secondI = findReplyIndex(commentdata, commentId);
 
         if (secondI == -1) {
@@ -276,7 +249,7 @@ function App() {
 
     function edit(event) {
         const editid = event.target.value;
-        const firstI = findIndex(commentdata, editid);
+        const firstI = findFirstIndex(commentdata, editid);
         const secondI = findReplyIndex(commentdata, editid);
         if (commentdata && commentdata[firstI].content) {
 
@@ -324,7 +297,7 @@ function App() {
 
 
         const id = event.target.value;
-        const firstIndex = findIndex(commentdata, id);
+        const firstIndex = findFirstIndex(commentdata, id);
         const secondIndex = findReplyIndex(commentdata, id);
         let updatedComments = "";
 
@@ -382,47 +355,83 @@ function App() {
 
 
 
+    function updateVote(id, numofvotes, typeOfVote) {
 
-    function updateVote(id, numofvotes) {
 
-        const firstI = findIndex(commentdata, id);
+        const firstI = findFirstIndex(commentdata, id);
         const secondI = findReplyIndex(commentdata, id);
 
 
-
-
-        if (commentdata) {
-
-            if (secondI == -1) {
-
-
-                commentdata[firstI].score = numofvotes;
-                // console.log(updatedVotes);
-                updateData(commentdata);
-
-                console.log(commentdata)
-
-            } else {
-
-
-                let updatedVotes = commentdata[firstI].replies.map((item) => {
-                    if (item.id == id) {
-                        return { ...item, score: numofvotes }
-                    }
-                    return item;
-                });
-
-                commentdata[firstI].replies = updatedVotes;
-
-                // console.log(updatedVotes);
-                updateData(commentdata);
-                // updateData(updatedVotes);
-                // commentdata[firstI].replies[secondI].score = currentScore + 1;
-
-                console.log(commentdata)
-            }
+        const newVote = {
+            votedID: id,
+            typeOfVote: typeOfVote
         }
-        localStorage.setItem('comments', JSON.stringify(commentdata));
+
+        const oppositeType = typeOfVote == "upvote" ? "downvote" : "upvote";
+    
+
+        const match = userData.voted.some(vote => {
+            return vote.votedID === newVote.votedID && vote.typeOfVote === newVote.typeOfVote;
+        });
+
+        const oppositematch = userData.voted.some(vote => {
+            return vote.votedID === newVote.votedID && vote.typeOfVote === oppositeType;
+        });
+
+       
+        // const indexOfVote = userData.voted.findIndex(vote => vote.votedID == id);
+
+
+        if (match) {
+            
+        } else if (oppositematch) {
+            let commentIndex = userData.voted.findIndex(vote => vote.votedID == id);
+    
+            if (commentIndex > -1) { // only splice array when item is found
+                userData.voted.splice(commentIndex, 1); // 2nd parameter means remove one item only
+            }
+          
+        } else {
+            userData.voted.push(newVote);
+
+            if (commentdata) {
+
+                if (secondI == -1) {
+
+
+                    commentdata[firstI].score = numofvotes;
+                    // console.log(updatedVotes);
+                    updateData(commentdata);
+
+
+
+                } else {
+
+
+                    let updatedVotes = commentdata[firstI].replies.map((item) => {
+                        if (item.id == id) {
+                            return { ...item, score: numofvotes }
+                        }
+                        return item;
+                    });
+
+                    commentdata[firstI].replies = updatedVotes;
+
+                    // console.log(updatedVotes);
+                    updateData(commentdata);
+                    // updateData(updatedVotes);
+                    // commentdata[firstI].replies[secondI].score = currentScore + 1;
+
+
+                }
+            }
+            localStorage.setItem('comments', JSON.stringify(commentdata));
+        }
+        localStorage.setItem('userData', JSON.stringify(userData));
+
+
+
+
 
     }
 
@@ -434,7 +443,7 @@ function App() {
 
                 <Comments
                     comments={commentdata}
-                    currentUser={currentUser}
+                    currentUser={userData}
                     user={userData}
                     catchTextAreaChange={catchReplyAreaChange}
                     deleteBtn={deleteBtn}
@@ -447,7 +456,7 @@ function App() {
                     editBtn={edit}
                     wantEdit={edittarget.wantEdit}
                     editTarget={edittarget}
-                    findIndex={findIndex}
+                    findIndex={findFirstIndex}
                     findReplyIndex={findReplyIndex}
                     editTextInput={editTextInput}
                     updateEditArea={updateEditArea}
@@ -466,7 +475,7 @@ function App() {
                     catchTextAreaChange={catchTextAreaChange}
                     textInput={commentSendInput}
                     clickFunction={sendComment}
-                    profilePic={currentUser.image.png}
+                    profilePic={userData.image.png}
 
                     type="send" />
                 {confirmDelete && <Modal deleteTargetID={deleteTargetID} deleteConfirm={deleteConfirm} cancelDelete={cancelDelete} />}
