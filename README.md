@@ -36,8 +36,8 @@ Users should be able to:
 
 ### Links
 
-- Solution URL: [Add solution URL here](https://your-solution-url.com)
-- Live Site URL: [Add live site URL here](https://your-live-site-url.com)
+- Solution URL: https://www.frontendmentor.io/solutions/updated-version-interactive-comments-challenge-PKSb_Kr9NG
+- Live Site URL: https://bap-ssbm.github.io/interactive-comments-challenge/
 
 ## My process
 
