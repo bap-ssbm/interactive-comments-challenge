@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/interactive-comments-challenge/static/js/main.4bcbc4d0.js",
+    "main.js": "/interactive-comments-challenge/static/js/main.f5aad0f8.js",
     "index.html": "/interactive-comments-challenge/index.html",
-    "main.4bcbc4d0.js.map": "/interactive-comments-challenge/static/js/main.4bcbc4d0.js.map"
+    "main.f5aad0f8.js.map": "/interactive-comments-challenge/static/js/main.f5aad0f8.js.map"
   },
   "entrypoints": [
-    "static/js/main.4bcbc4d0.js"
+    "static/js/main.f5aad0f8.js"
   ]
 }
