@@ -1,85 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import UserContextProvider, { UserContext } from "./contexts/UserContext";
 
 import ScoreButton from "./ScoreButton";
 import TopSection from "./TopSection";
 import Reply from "./Reply";
-import moment from "moment/moment";
-import TextareaAutosize from 'react-textarea-autosize';
+
+import { ReplyContext } from "./contexts/ReplyContext";
+import { EditContext } from "./contexts/EditContext";
+import { CommentsContext } from "./contexts/CommentsContext";
+import EditArea from "./EditArea";
 
 
 
 function Comment(props) {
 
+    const { userData, updateUserData } = useContext(UserContext);
+    const { wantEdit, editTarget, setEditTarget } = useContext(EditContext);
+    const { commentdata, updateData } = useContext(CommentsContext);
 
-    function mapEditComment() {
-
-        const firstIndex = props.findIndex(props.commentsData, props.id);
-        const secondIndex = props.findReplyIndex(props.commentsData, props.id);
-
-
-
-        if (props.wantEdit && (props.editTarget.firstIndex === firstIndex && (props.editTarget.secondIndex === secondIndex))) {
-            return (
-                <div className="edit-area">
-                    <TextareaAutosize
-                        minRows={3}
-                        onChange={props.updateEditArea}
-                        name={props.type}
-                        value={props.editTextInput}></TextareaAutosize>
-                    <button onClick={props.editComment} name={props.type} value={props.id} className="blue-btn" >UPDATE</button>
-                </div>
-            )
-        } else {
-            return (
-                <div className="comments-section">
-                    <p>{(props.type === "reply") && <span className="replyAt">{"@" + props.atReply + " "}</span>}{props.content}</p>
-                </div>
-
-            )
-        }
-
-    }
+    const { wantReply, setWantReply, replyTarget, replyTargetName } = useContext(ReplyContext);
 
 
     return (
         <div className="reply-comment-wrapper">
             <div className="comment-wrapper">
                 <ScoreButton
-                    updateVote={props.updateVote}
-                    score={props.comment.score}
-                    id={props.id} 
-                    user = {props.user}/>
-                    
+
+                    commentData={props.comment}
+                />
+
+
                 <div className="comment-right">
-                    <TopSection replyBtn={props.replyBtn}
-                        deleteBtn={props.deleteBtn}
-                        editBtn={props.editBtn}
-                        replybtn={props.replyBtn}
-                        id={props.id}
-                        imgURL={props.imgURL}
-                        userName={props.userName}
-                        date={moment(props.date).fromNow() === "Invalid date" ? props.date : moment(props.date).fromNow()}
-                        isUser={props.isUser}
-                        deleteConfirm={props.deleteConfirm}
-                        cancelDelete={props.cancelDelete}
-                        deleteModal={props.deleteModal}
-                    />
+                    <TopSection commentData={props.comment} />
+                    <div className="comments-section">
+                        <UserContextProvider>
+                            {(wantEdit&&editTarget===props.comment.id)? (<EditArea commentData={props.comment}/>):(<p>{(props.type === "reply") && <span className="replyAt">{"@" + props.comment.replyingTo + " "}</span>}{props.comment.content}</p>)}
+                        </UserContextProvider>
 
-                    {mapEditComment()}
-
+                    </div>
                 </div>
             </div>
-            {((props.replyTarget.targetName === props.userName) && props.wantReply) &&
-                <Reply
-                    targetName={props.replyTarget.targetName}
-                    catchTextAreaChange={props.catchTextAreaChange}
-                    sendReply={props.sendReply}
-                    clickFunction={props.clickFunction}
-                    profilePic={props.currentUser.image.png}
-                    type="reply"
-                    textInput={props.textInput}
-                />}
+            {(wantReply && props.comment.id === replyTarget) &&
+                (<Reply type="reply" target={props.comment.id} />)}
+
         </div>
+
 
     )
 }

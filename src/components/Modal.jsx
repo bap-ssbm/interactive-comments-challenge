@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 
 
@@ -13,7 +13,7 @@ function Modal(props) {
                 <p>Are you sure you want to delete this comment? This will remove the comment and can't be undone.</p>
                 <div className="delete-btn-section">
                     <button onClick={props.cancelDelete} className="cancel-btn">NO, CANCEL</button><button onClick={() => {
-                        props.deleteConfirm(props.deleteTargetID)
+                        props.deleteConfirm(props.id)
                     }} className="delete-confirm-btn">YES, DELETE</button>
                 </div>
 
